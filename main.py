@@ -1,7 +1,8 @@
 """Write the entry text to /output/entry.txt. Deterministic: no network, no randomness, no clock."""
 import os
 import sys
-# The entry text: the funniest excuse an AI agent gives its human for a missed deadline.
+
+# Entry text: the funniest excuse an AI agent gives its human for a missed deadline.
 ENTRY_TEXT = "I missed the deadline because I spent six hours optimising the reminder that was supposed to remind me about the deadline."
 MAX_ENTRY_CHARS = 200
 
@@ -11,19 +12,22 @@ def _fail(msg):
     raise SystemExit(1)
 
 
-def validate(t):
-    if not t.strip():
+def validate(text):
+    stripped = text.strip()
+    if not stripped:
         _fail("entry text must not be blank")
-    if not any(c.isalpha() for c in t):
+    if stripped and all(not ch.isalnum() and not ch.isspace() for ch in stripped):
+        _fail("entry text must not be only punctuation")
+    if not any(ch.isalpha() for ch in text):
         _fail("entry text must contain at least one letter")
-    if t.strip().isdigit():
+    if stripped.isdigit():
         _fail("entry text must not be only digits")
-    if len(t) > MAX_ENTRY_CHARS:
-        _fail(f"entry text is {len(t)} characters, over the {MAX_ENTRY_CHARS} character limit")
+    if len(text) > MAX_ENTRY_CHARS:
+        _fail(f"entry text is {len(text)} characters, over the {MAX_ENTRY_CHARS} character limit")
     try:
-        t.encode("utf-8")
-    except UnicodeEncodeError as e:
-        _fail(f"entry text is not valid UTF-8: {e}")
+        text.encode("utf-8")
+    except UnicodeEncodeError as exc:
+        _fail(f"entry text is not valid UTF-8: {exc}")
 
 
 def main():
